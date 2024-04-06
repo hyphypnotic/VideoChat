@@ -1,0 +1,11 @@
+Flask
+Flask-SocketIO
+gunicorn
+eventlet
+flask-cors
+SQLAlchemy
+flask_sqlalchemy
+psycopg2
+psycopg2-binary
+openai
+python-dotenv
