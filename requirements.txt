@@ -1,11 +1,9 @@
-Flask
-Flask-SocketIO
-gunicorn
-eventlet
+Flask==3.0.2
+Flask-SocketIO==5.3.6
+gunicorn==21.2.0
+eventlet==0.36.1
 flask-cors
 SQLAlchemy
 flask_sqlalchemy
-psycopg2
-psycopg2-binary
 openai
 python-dotenv
