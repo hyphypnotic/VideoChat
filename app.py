@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.exc import IntegrityError, OperationalError
 # Next two lines are for the issue: https://github.com/miguelgrinberg/python-engineio/issues/142
 from engineio.payload import Payload
 Payload.max_decode_packets = 200
@@ -21,8 +22,6 @@ client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 db = SQLAlchemy(app)
 
 
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 
 user_word = db.Table('userk_word',
