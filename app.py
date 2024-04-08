@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response
 from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import re
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt, decode_token, JWTManager)
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError, OperationalError
 # Next two lines are for the issue: https://github.com/miguelgrinberg/python-engineio/issues/142
@@ -18,6 +20,8 @@ app.config['SECRET_KEY'] = "thisismys3cr3tk3yrree"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://default:5lRaUgW1bLzo@ep-square-wind-a4xxqxcv-pooler.us-east-1.aws.neon.tech/verceldb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+jwt = JWTManager()
+jwt.init_app(app)
 
 db = SQLAlchemy(app)
 
@@ -305,6 +309,73 @@ def on_data(data):
         print('{} message from {} to {}'.format(data["type"], sender_sid, target_sid))
     socketio.emit('data', data, room=target_sid)
 
+@app.route("/courses", methods=["GET"])
+def courses():
+    return render_template("cards.html")
+
+
+def user_exists(email):
+    user = Userk.get_user_by_email(email=email)
+    if user is not None:
+        return user
+    return False
+
+def valid_password(password, confirm_password=None):
+    # Проверяет сложность пароля и его соответствие подтверждению пароля
+    if password != confirm_password and confirm_password is not None:
+        return False
+    if len(password) < 8:
+        return False
+    if not re.search("[0-9]", password):
+        return False
+    if not re.search("[a-z]", password):
+        return False
+    if not re.search("[A-Z]", password):
+        return False
+    return True
+
+def valid_email(email):
+    # Проверяет валидность адреса электронной почты
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    return re.match(pattern, email) is not None
+
+def freshen_session(payload):
+    session['Email'] = payload['sub']
+    session['AccessIssueTime'] = payload['exp']
+
+@app.route("/signin", methods=["GET","POST"])
+def sign_in():
+    if request.method == "GET":
+        return render_template("signin.html")
+    elif request.method == "POST":
+        data = request.form
+        user = user_exists(data.get('email'))
+        # if not valid_password(password=data.get('password')):
+        #     return jsonify(message='valid password')
+
+        if user and (user.check_password(password=data.get('password'))):
+            access_token = create_access_token(identity=user.email)
+            refresh_token = create_refresh_token(identity=user.email)
+
+            rs = make_response(jsonify(access_token=access_token))
+            rs.set_cookie(key='refresh_token_cookie', value=refresh_token, path='/refresh', httponly=True,
+                          secure=True)
+            freshen_session(decode_token(encoded_token=access_token))
+            # response = jsonify(access_token=access_token)
+            # set_refresh_cookies(resp, refresh_token)
+
+            return rs, 200
+
+        return jsonify({'error': 'Invalid email or password'})
+
+@app.get('/refresh')
+@jwt_required(refresh=True)
+def refresh_access():
+    payload = get_jwt()
+
+    new_access_token = create_access_token(identity=payload.get('sub'))
+
+    return jsonify({'access_token': new_access_token})
 
 if __name__ == "__main__":
     # with app.app_context():
