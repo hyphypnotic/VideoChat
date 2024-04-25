@@ -19,7 +19,7 @@ CORS(app)
 app.config['SECRET_KEY'] = "thisismys3cr3tk3yrree"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://default:5lRaUgW1bLzo@ep-square-wind-a4xxqxcv-pooler.us-east-1.aws.neon.tech/verceldb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+client = OpenAI(api_key="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")
 jwt = JWTManager()
 jwt.init_app(app)
 
