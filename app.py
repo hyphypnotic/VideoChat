@@ -226,7 +226,7 @@ def enter_room(room_id, language):
     #         {"role": "user", "content": prompt}
     #     ]
     # )
-    txt ="dasdasdasda"
+    txt =["dasdasdasda","hyjyfuyf"]
     return render_template("chatroom.html",
                            room_id=room_id,
                            display_name=session[room_id]["name"],
