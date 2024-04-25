@@ -218,7 +218,7 @@ def find_companion(username, language, language_level):
 def enter_room(room_id, language):
     if room_id not in session:
         return redirect(url_for("entry_checkpoint", room_id=room_id, language=language))
-    prompt = f"дай только пять вопросов на {language} для начало и развите разгавора с другим человеком инстранцом в видео звонке."
+    prompt = f"дай только пять вопросов на {language} для начало и развитие разгавора с другим человеком иностранцом в видео звонке."
     response = client.chat.completions.create(  # Этот метод отправляет запрос на сервер OpenAI и возвращает ответ.
         model="gpt-4-turbo-preview",
         messages=[
@@ -364,7 +364,6 @@ def sign_in():
             # response = jsonify(access_token=access_token)
             # set_refresh_cookies(resp, refresh_token)
 
-            return rs, 200
 
         return jsonify({'error': 'Invalid email or password'})
 
