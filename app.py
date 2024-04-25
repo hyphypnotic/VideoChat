@@ -14,12 +14,13 @@ from engineio.payload import Payload
 Payload.max_decode_packets = 200
 
 app = Flask(__name__)
+app.debug = True
 load_dotenv()
 CORS(app)
 app.config['SECRET_KEY'] = "thisismys3cr3tk3yrree"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://default:5lRaUgW1bLzo@ep-square-wind-a4xxqxcv-pooler.us-east-1.aws.neon.tech/verceldb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="sk-proj-dpiDByiYl3MjJxgaxtvBT3BlbkFJCjm3A2B6IHLrjMRcbBXp")
 jwt = JWTManager()
 jwt.init_app(app)
 
@@ -218,15 +219,14 @@ def find_companion(username, language, language_level):
 def enter_room(room_id, language):
     if room_id not in session:
         return redirect(url_for("entry_checkpoint", room_id=room_id, language=language))
-    prompt = f"дай только пять вопросов на {language} для начало и развитие разгавора с другим человеком иностранцом в видео звонке."
-    response = client.chat.completions.create(  # Этот метод отправляет запрос на сервер OpenAI и возвращает ответ.
-        model="gpt-4-turbo-preview",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
-    txt = response.choices[0].message.content
-    txt = txt.split('\n')
+    # prompt = f"дай только пять вопросов на {language} для начало и развитие разгавора с другим человеком иностранцом в видео звонке."
+    # response = client.chat.completions.create(  # Этот метод отправляет запрос на сервер OpenAI и возвращает ответ.
+    #     model="gpt-4-turbo-preview",
+    #     messages=[
+    #         {"role": "user", "content": prompt}
+    #     ]
+    # )
+    txt ="dasdasdasda"
     return render_template("chatroom.html",
                            room_id=room_id,
                            display_name=session[room_id]["name"],
